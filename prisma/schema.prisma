@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  HUMAN
+  AI
+  PLACEHOLDER
+}
+
+enum Plan {
+  BASIC
+  PRO
+  PREMIUM
+}
+
+enum TransactionStatus {
+  COMPLETE
+  FAILED
+  PENDING
+}
+
+model User {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  email          String    @unique
+  image          String?
+  password       String?
+  authProvider   String?
+  authProviderId String?
+  createdAt      DateTime  @default(now())
+  plan           Plan      @default(BASIC)
+  nextBilling    DateTime?
+
+  files        File[]
+  transactions Transaction[]
+}
+
+model File {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  fileUrl   String?
+  fileName  String
+  fileSize  Int
+  type      String
+  createdAt DateTime @default(now())
+
+  user  User   @relation(fields: [userId], references: [id])
+  chats Chat[]
+}
+
+model Chat {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  fileId    String   @db.ObjectId
+  userId    String   @db.ObjectId
+  role      Role
+  message   String
+  createdAt DateTime @default(now())
+
+  file File @relation(fields: [fileId], references: [id])
+}
+
+model Transaction {
+  id            String            @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String            @db.ObjectId
+  transactionId String
+  plan          Plan
+  createdAt     DateTime          @default(now())
+  amount        Int
+  currency_code String
+  status        TransactionStatus @default(PENDING)
+
+  user User @relation(fields: [userId], references: [id])
+}
