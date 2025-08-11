@@ -56,7 +56,7 @@ const plans: Plan[] = [
   {
     name: "PREMIUM",
     price: 20000,
-    priceUnit: "INR/mo",
+    priceUnit: "NGN/mo",
     description: "For teams and businesses",
     features: [
       "25 documents",
